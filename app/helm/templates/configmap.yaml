@@ -1,0 +1,15 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ template "event-data-pipeline.fullname" . }}
+  annotations:
+{{ toYaml .Values.configmap.annotations | indent 4 }}
+  labels:
+{{ include "event-data-pipeline.labels" . | indent 4 }}
+data:
+  config.yaml:
+    {{ .Values.eventDataPipeline.config.content | toYaml | indent 4 }}
+{{- if eq .Values.fluentd.enabled true }}
+  fluent.conf:
+    {{ toYaml .Values.fluentd.service | indent 4 }}
+{{- end }}

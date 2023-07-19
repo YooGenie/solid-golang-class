@@ -1,0 +1,6 @@
+.vscode
+app/fs
+app/pkg/storages_providers/fs
+
+.idea/
+.DS_Store

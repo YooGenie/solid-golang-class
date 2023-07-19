@@ -1,0 +1,187 @@
+# Pod RepliCa 목표 설정
+replicaCount: 1
+
+# Deployment 설정
+strategy:
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+revisionHistoryLimit: 10 
+
+# 이미지 설정
+image:
+  repository: youngstone89/event-data-pipeline
+  tag: latest
+  pullPolicy: Always
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+# 환경변수 설정
+environment:
+  EDP_ENABLE_LOGGING_TO_FILE: true
+  EDP_CONFIG: configs/config.yaml
+  EDP_ENABLE_DEBUG_LOGGING: false
+
+# 런타임 설정
+eventDataPipeline:
+  config:
+    filename: config.yaml
+    content: |
+      - consumer:
+          name: kafka
+          config:
+            max_retries: -1
+            retry_delay: 5
+            record_check_frequency: 15
+            client_name: default
+            topic: purchases
+            consumer_options:
+              bootstrap.servers: "my-cluster-kafka-0.my-cluster-kafka-brokers.kafka.svc:9092"
+              group.id: "01"
+              auto.offset.reset: earliest
+              enable.auto.commit: "false"
+              enable.partition.eof: "true"
+              session.timeout.ms: "60000"
+              heartbeat.interval.ms: "15000"
+        processors:
+          - name: kafka_default
+          - name: kafka_normalizer
+        storages:
+          - type: elasticsearch
+            config:
+              addresses:
+                - http://elasticsearch-master-headless.analytics:9200
+resources:
+  limits:
+    cpu: 3000m
+    memory: 1.0Gi
+  requests:
+    cpu: 1000m
+    memory: 200Mi
+nodeSelector: {}
+tolerations: []
+affinity: {}
+##--------------------------------------------------------------------------------------------------------------------------------
+deployment:
+  annotations: {}
+  serviceLabels: {}
+configmap:
+  annotations: {}
+##--------------------------------------------------------------------------------------------------------------------------------
+service:
+  type: ClusterIP
+  ## uncomment to make the ELC service headless
+  #clusterIP: None
+  httpPort: 8078
+  annotations: {}
+http:
+  enable: true
+  port: 8078
+##--------------------------------------------------------------------------------------------------------------------------------
+#Probing
+livenessProbe:
+  path: /health
+  failureThreshold: 3
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+readinessProbe:
+  path: /health
+  failureThreshold: 3
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+##--------------------------------------------------------------------------------------------------------------------------------
+##Persistence Storage Configurations
+##PV should support ReadOnlyMany access mode 
+persistence:
+  ##volumeType can be nfs, hostPath, other, existingClaim.
+  volumeType: none
+  ##Storage property is applicable to volume type nfs and other only 
+  storage: 5Gi
+  ##---------------------------------------------------------------------------------------------------------------------------------
+  ##If volumeType is NFS. 
+  ##PV and PVC will be created for every pool if NFS is enabled. NFS server details needs to be configured below
+  nfs:
+    ##configure nfs server IP 
+    server:
+    ##nfs server mount path
+    path:
+    ##---------------------------------------------------------------------------------------------------------------------------------
+    ##If volumeType is hostPath.
+    ##hostMountPath property is required. Configured dataPack.languages should be available on the host mount path
+  hostMountPath:
+  #---------------------------------------------------------------------------------------------------------------------------------
+  ##If volumeType is other. Configured dataPack.languages should be available on the PV mount 
+  other:
+    storageClassName: ""
+    ##pvSelectors can be configured to bind PVC to a static configured  PV
+    #pvSelectors: 
+    #  pvLabel: pvLabelValue
+    ##---------------------------------------------------------------------------------------------------------------------------------
+    ##If volumeType is existingClaim. Configured dataPack.languages should be available on the PV mount 
+  existingClaim:
+##-----------------------Prometheus Configuration-----------------------------------------------------------------
+prometheusOperator:
+  enable: true
+  namespace: monitoring
+  serviceMonitor:
+    labels:
+      release: prometheus
+##------------------------Grafana Configuration--------------------------------------------------------------------------------------------------------
+grafana:
+  enabled: false
+  configmap:
+    annotations: {}
+  selectorLabels:
+    grafana_dashboard: "grafana_dashboard"
+  datasource:
+    name: "Prometheus"
+    label: "Prometheus"
+    description: ""
+    type: "datasource"
+    pluginId: "prometheus"
+    pluginName: "Prometheus"
+##--------------------------------------------------------------------------------------------------------------------------------
+##fluentd configuration
+fluentd:
+  enabled: true
+  resources: {}
+  image:
+    repository: youngstone89/fluentd
+    tag: latest
+    pullPolicy: Always
+  service: |-
+    # HTTP input for the liveness and readiness probes
+    <source>
+      @type http
+      port 24224
+    </source>
+    <match fluentd.healthcheck>
+        @type stdout
+    </match>
+    <source>
+      @type tail
+      path /app/logs/event-data-pipeline.log
+      pos_file /app/logs/event-data-pipeline.log.pos
+      tag event-data-pipeline
+      <parse>
+        @type json
+      </parse>
+    </source>
+    <match event-data-pipeline>
+      @type elasticsearch
+      host elasticsearch-master.analytics
+      port 9200
+      time_key T
+      index_name fluentd.${tag}.%Y%m%d
+      <buffer tag, time>
+        @type memory
+        timekey 60
+        flush_mode immediate
+      </buffer>
+    </match>
+  ##--------------------------------------------------------------------------------------------------------------------------------

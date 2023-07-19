@@ -1,0 +1,12 @@
+- consumer:
+    name: rabbitmq
+    config:
+      host: amqp://guest:guest@localhost:5672/
+      queue_name: users
+  processors:
+    - name: rabbitmq_default
+    - name: rabbitmq_normalizer
+  storages:
+    - type: filesystem
+      config:
+        path: fs/

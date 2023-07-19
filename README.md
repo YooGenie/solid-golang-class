@@ -1,0 +1,2 @@
+# solid-golang-class
+---

@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  event-data-pipeline:
+    image: youngstone89/event-data-pipeline:latest
+    environment:
+      - EDP_ENABLE_DEBUG_LOGGING=true
+      - EDP_CONFIG=configs/config.docker_compose.rabbitmq.yaml
+    volumes:
+      - ../configs:/app/configs
+    networks:
+      - edp-net
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+networks:
+  edp-net:
+    driver: bridge

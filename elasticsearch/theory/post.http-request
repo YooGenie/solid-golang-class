@@ -1,0 +1,13 @@
+{
+  "body": {
+    "content": "ewogICJuYW1lIjogIlBpbmVhcHBsZSIsCiAgImJvdGFuaWNhbF9uYW1lIjogIkFuYW5hcyBjb21vc3VzIiwKICAicHJvZHVjZV90eXBlIjogIkZydWl0IiwKICAiY291bnRyeV9vZl9vcmlnaW4iOiAiTmV3IFplYWxhbmQiLAogICJkYXRlX3B1cmNoYXNlZCI6ICIyMDIwLTA2LTAyVDEyOjE1OjM1IiwKICAicXVhbnRpdHkiOiAyMDAsCiAgInVuaXRfcHJpY2UiOiAzLjExLAogICJkZXNjcmlwdGlvbiI6ICJhIGxhcmdlIGp1aWN5IHRyb3BpY2FsIGZydWl0IGNvbnNpc3Rpbmcgb2YgYXJvbWF0aWMgZWRpYmxlIHllbGxvdyBmbGVzaCBzdXJyb3VuZGVkIGJ5IGEgdG91Z2ggc2VnbWVudGVkIHNraW4gYW5kIHRvcHBlZCB3aXRoIGEgdHVmdCBvZiBzdGlmZiBsZWF2ZXMuVGhlc2UgcGluZWFwcGxlcyBhcmUgc291cmNlZCBmcm9tIE5ldyBaZWFsYW5kLiIsCiAgInZlbmRvcl9kZXRhaWxzIjogewogICAgInZlbmRvciI6ICJUcm9waWNhbCBGcnVpdCBHcm93ZXJzIG9mIE5ldyBaZWFsYW5kIiwKICAgICJtYWluX2NvbnRhY3QiOiAiSHVnaCBSb3NlIiwKICAgICJ2ZW5kb3JfbG9jYXRpb24iOiAiV2hhbmdhcmVpLCBOZXcgWmVhbGFuZCIsCiAgICAicHJlZmVycmVkX3ZlbmRvciI6IHRydWUKICB9Cn0=",
+    "file": false,
+    "fileSize": false
+  },
+  "headers": {
+    "content-type": "application/json"
+  },
+  "method": "POST",
+  "title": "New HTTP Request",
+  "url": "http://localhost:9200/temp_index/_doc"
+}
