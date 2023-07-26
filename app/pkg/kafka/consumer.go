@@ -36,7 +36,8 @@ type KafkaConsumer struct {
 	kafkaConsumer *kafka.Consumer
 
 	//adminClient to get partitions
-	adminClient *AdminClient
+	adminClient *AdminClient // 초기화 후에 adminClient의 메소드를 그대로 이용 가능
+	//adminClient 만 변경 되면 partition를 가져오는 메소드는 KafkaConsumer 별도로 책임 질 필요가 없다. => 코드의 유지보수성이 높아진다.
 
 	//partitions response
 	partitions *PartitionsResponse
@@ -105,7 +106,7 @@ func extractPipeParams(config jsonObj) (context.Context, chan interface{}, chan 
 	return ctx, stream, errch
 }
 
-//create KafkaClient instance
+// create KafkaClient instance
 func (kc *KafkaConsumer) CreateConsumer() error {
 
 	if kc == nil {
@@ -158,7 +159,7 @@ func (kc *KafkaConsumer) Read(ctx context.Context) error {
 	return nil
 }
 
-//Copy KafkaConsumer instance
+// Copy KafkaConsumer instance
 func (kc *KafkaConsumer) Copy() *KafkaConsumer {
 	return &KafkaConsumer{
 		topic:     kc.topic,

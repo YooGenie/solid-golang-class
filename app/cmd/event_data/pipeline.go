@@ -102,7 +102,8 @@ func (e *EventDataPipeline) Run() error {
 		cfgParams["consumerCfg"] = cfg.Consumer.Config
 
 		// 이벤트 기반 데이터를 소비하는 컨슈머 생성
-		consumer, err := consumers.CreateConsumer(cfg.Consumer.Name, cfgParams)
+		consumer, err := consumers.CreateConsumer(cfg.Consumer.Name, cfgParams) // consumers 패키지 안에 있는 CreateConsumer 함수를 사용해서 이름과 설정정보를 가진 파라미를 넘겨주면 다양한 컨슈머 타입을 생성할 수 있다.
+		// 런타임에 이 코드가 실행 되면 사용자가 이름과 설정값을 넘기는 것에 따라 동적으 원하는 컨슈머 타입을 만들어서 프로그램을 구성할 수 있다.
 		if err != nil {
 			logger.Errorf("%v", err)
 			return err

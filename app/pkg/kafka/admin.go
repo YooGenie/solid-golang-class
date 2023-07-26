@@ -9,15 +9,20 @@ import (
 )
 
 type Admin interface {
-	GetPartitions() (*PartitionsResponse, error)
+	GetPartitions() (*PartitionsResponse, error) // 카프카에서 Partition 정보를 가져오 메소드를 정의하고 있는 Admin 인터페이스
 }
 
 // Admin Class that implements Admin
+// Admin 인터페이스를 구현하는 Struct
 type AdminClient struct {
 	topic      string
 	consumer   *kafka.Consumer
 	partitions []kafka.PartitionMetadata
 }
+
+// Admin interface와 AdminClient struct 은 오로지 카프카의 파티션 정보를 가져오는 것만 관심을 가진다.
+// 이것에 대한 이점은 무멋이 있을까요?
+// AdminClient 를 Embedding 하는 struct 인 KafkaConsumer 타입은 초기화 작업 이후에 adminClient의 메소드를 그대로 이용할 수 있다.
 
 func NewAdminClient(topic string, consumer *kafka.Consumer) (*AdminClient, error) {
 	if topic == "" {
