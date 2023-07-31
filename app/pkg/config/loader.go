@@ -58,7 +58,7 @@ func NewConfig() *Config {
 	return cfg
 }
 
-func NewPipelineConfig(path string) []*PipelineCfg {
+func NewPipelineConfig(path string) []*PipelineCfg { // 원하는 형태의 스트럭트 타입으로 앞서 정의한 Config.json에 파일을 로드해서 읽을 수 있다.
 	var cltrsCfArr []*PipelineCfg
 
 	if !PathExists(path) {
