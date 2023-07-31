@@ -17,7 +17,7 @@ type Consumer interface {
 	CreateConsumer() error
 	CreateAdminConsumer() error
 	GetPartitions() error
-	Read(ctx context.Context) error
+	Read(ctx context.Context) error // 이거 실제 구현체는 KafkaConsumer 스트럭 이라는 걸 알 수 있다.
 	AssignPartition(partition int) error
 	Poll(ctx context.Context)
 	Stream() chan interface{}
@@ -144,7 +144,7 @@ func (kc *KafkaConsumer) GetPartitions() error {
 	return nil
 }
 
-func (kc *KafkaConsumer) Read(ctx context.Context) error {
+func (kc *KafkaConsumer) Read(ctx context.Context) error { // 카푸카와 커넥션을 맺은 다음 데이터를 읽어 오는 비즈니스 로직이 구현 되어 있다.
 	// 파티션 별로 카프카 컨슈머 생성
 	for _, p := range kc.partitions.Partitions {
 		// KafkaConsumer 인스턴스 복사
@@ -183,7 +183,7 @@ func (kc *KafkaConsumer) AssignPartition(partition int) error {
 	return err
 }
 
-func (kc *KafkaConsumer) Poll(ctx context.Context) {
+func (kc *KafkaConsumer) Poll(ctx context.Context) { //실제로 데이터를 읽어오는 코드가 있다.
 	cast := func(msg *kafka.Message) map[string]interface{} {
 		var record = make(map[string]interface{})
 
