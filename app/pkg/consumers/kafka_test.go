@@ -29,9 +29,10 @@ func TestKafkaConsumerClient_Consume(t *testing.T) {
 	pipeCfgs := config.NewPipelineConfig(cfg.PipelineCfgsPath) // 파이프라인을 구동하기 위한 파이브라인의 컨피그패를 넘긴다.
 
 	ctx := context.TODO()            // 사용하고자 하는 context
-	stream := make(chan interface{}) // 데이터를 읽어오는 채널
+	stream := make(chan interface{}) // 데이터를 읽어오는 채널 => 인터페이스 타입의 채널
 	errCh := make(chan error)        // 에러 채널
 
+	// 이렇게 실행될 고루틴이 있을 예정이다. 고루틴은 스트링으로 전달될 예정이다.
 	for _, cfg := range pipeCfgs { // pipeCfgs 변수를 for문을 돌면서 필요한 context와 에러채널, 스트림 채널들을 consumerCfg와 pipeParams 객체로 넣어 준다.
 		cfgParams := make(jsonObj)
 		pipeParams := make(jsonObj)
@@ -56,14 +57,14 @@ func TestKafkaConsumerClient_Consume(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		kafkaConsumer.Consume(context.TODO())
+		kafkaConsumer.Consume(context.TODO()) // 컨슈이라는 인터페이스의 메소드를 실행한다.
 	}
 
 	for {
 		select {
-		case data := <-stream:
+		case data := <-stream: //스트림으로 데이터를 전송한다.
 			_json, _ := json.MarshalIndent(data, "", " ")
-			t.Logf("data: %v", string(_json))
+			t.Logf("data: %v", string(_json)) // 데이터가 전송되었을 때 로그를 한번 찍 리턴을 하고 테스트가 정상 종료 된다.
 			return
 		case err := <-errCh:
 			t.Logf("err: %v", err)

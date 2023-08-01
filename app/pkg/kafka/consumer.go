@@ -154,7 +154,7 @@ func (kc *KafkaConsumer) Read(ctx context.Context) error { // 카푸카와 커�
 		// 데이터를 읽어오기 위한 파티션에 할당
 		ckc.AssignPartition(int(p))
 		// 실제 데이터를 읽어오는 고루틴 생성
-		go ckc.Poll(ctx)
+		go ckc.Poll(ctx) // 비동기식으로 컨슈머별로 데이터를 읽어오는 고루틴을 실행함
 	}
 	return nil
 }

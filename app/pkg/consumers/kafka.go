@@ -85,7 +85,7 @@ func (kc *KafkaConsumerClient) Init() error { // 카푸카의 경우
 func (kc *KafkaConsumerClient) Consume(ctx context.Context) error { //앞에서 정의 되어 있는 Consume 인터페이스의 메소드를 구현하고 있는 상세 구현 타입 메소드는
 	//여기에 선언 되어있다.
 	// KafkaConsumerClient 라는 상세 타입 있다.
-	err := kc.Read(ctx) // read라는 메소드를 카푸카 패키지에서 가져와서 사용하는 걸 알 수 있다.
+	err := kc.Read(ctx) // read라는 메소드를 카푸카 패키지에서 가져와서 사용하는 걸 알 수 있다. // 컨슈머의 리드를 실행한다.
 	if err != nil {
 		return err
 	}

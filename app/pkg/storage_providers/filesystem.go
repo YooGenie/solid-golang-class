@@ -67,6 +67,7 @@ func NewFilesystemClient(config jsonObj) StorageProvider {
 	return fc
 }
 
+// 제공된 config 파일 대로 fs/ 라는 경로 저장이 될 것이다.
 func (f *FilesystemClient) Write(payload interface{}) (int, error) {
 	if payload != nil {
 
