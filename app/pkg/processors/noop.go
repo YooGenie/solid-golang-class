@@ -31,15 +31,16 @@ func NewNoopProcessor(config jsonObj) Processor {
 
 // 프로세서 인스턴스의 Process 메소드 구현으로 Duck Typing
 func (n *NoopProcessor) Process(ctx context.Context, p payloads.Payload) (payloads.Payload, error) {
-	logger.Debugf("Processing %v", p)
+	logger.Debugf("Processing %v", p) // 디버그로 이 데이터를 Processing하고 있다.
 	// 확장된 Validate 메소드 사용
-	err := n.Validate(ctx, p)
+	err := n.Validate(ctx, p) // 로그 찍고 Validate에 Validate 로직을 탄다.
 	if err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
+// 별도의 로직 없 껍데기만 있는 걸 실행할 예정
 func (n *NoopProcessor) Validate(ctx context.Context, p payloads.Payload) error { // NoopProcessor에서 Validate를 따로 정의 함
 	// 기존의 Validtor라는 메소드를 그냥 사용하여 기존 삽입하고 있는 Validate 유효성 검증 로직을 그대로 사용한다.
 	// 별도에 NoopProcessor에 Validate 로직을 구현 함으로 기존 코드 확장 했다.

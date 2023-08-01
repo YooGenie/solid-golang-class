@@ -15,8 +15,8 @@ github.com/cespare/xxhash/v2
 # github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 ## explicit
 github.com/common-nighthawk/go-figure
-# github.com/confluentinc/confluent-kafka-go v1.8.2
-## explicit
+# github.com/confluentinc/confluent-kafka-go v1.9.2
+## explicit; go 1.13
 github.com/confluentinc/confluent-kafka-go/kafka
 github.com/confluentinc/confluent-kafka-go/kafka/librdkafka_vendor
 # github.com/elastic/elastic-transport-go/v8 v8.1.0
