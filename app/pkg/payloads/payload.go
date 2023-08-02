@@ -9,6 +9,10 @@ type Payload interface {
 	Clone() Payload
 
 	Out() (string, string, []byte)
+	// 3가지 타입을 반환해서 데이터 타입에 따라 특정 양식을 만든다.
+	// index string, docId string, data []byte => 어떤 스토리지가 되든 저장을 할 때 구조가 필요하다.
+	// index는 다큐먼트를 담고 있는 상위 카테고리
+	// 다큐먼트별로 들어가는 실제 값을 저장하는 용도로 프로세서에서 어떤 처리가 끝났을 때 스토리지 프로바이저에서 데이터를 반환하는 용도이다.
 
 	// MarkAsProcessed is invoked by the pipeline when the Payload either
 	// reaches the pipeline sink or it gets discarded by one of the

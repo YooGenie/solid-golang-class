@@ -48,7 +48,7 @@ func CreateProcessor(name string, config jsonObj) (Processor, error) {
 
 // 모든 프로세서는 본 인터페이스를 구현해야함.
 type Processor interface {
-	Process(context.Context, payloads.Payload) (payloads.Payload, error)
+	Process(context.Context, payloads.Payload) (payloads.Payload, error) // Process 메서드는 페이로드라는 인터페이스를 구현하는 객체를 주고 받는다.
 	// 프로세스라고 하는 메소드 시그니처가 있다.
 	// context.Context : 현재는 사용하고 있지 않지만 프로그램 전반적으로 실행이 될 때 프로그램 동작에 어떤 실행 이후에 취소나 그런 것들을 아울러서 담하기 위해서는 context라는 파라미터를 받아서 컨텍스트가 취소가 됐으면 이 프로세스는 중단을 한다는 것들이
 	// 필요할 수 있으니까 컨텍스트 파라미터를 넘겨줬다.

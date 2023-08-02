@@ -47,8 +47,7 @@ func (r fifo) Run(ctx context.Context, params StageParams) {
 			// If the processor did not output a payload for the
 			// next stage there is nothing we need to do.
 			if payloadOut == nil {
-				payloadIn.MarkAsProcessed()
-				continue
+				payloadIn.MarkAsProcessed() // 처리가 끝나서 필요없는 경우가 있다. 리턴된 페이로드가 없을 때 더이상 진행할 필요가 없으니까 그 다음 프로세서에 넘길 필요는 경우가 발생해서 이 코드를 선언해놨다.
 			}
 
 			// broadcast output to all output channels

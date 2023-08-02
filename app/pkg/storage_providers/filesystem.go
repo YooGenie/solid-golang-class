@@ -68,10 +68,11 @@ func NewFilesystemClient(config jsonObj) StorageProvider {
 }
 
 // 제공된 config 파일 대로 fs/ 라는 경로 저장이 될 것이다.
-func (f *FilesystemClient) Write(payload interface{}) (int, error) {
+func (f *FilesystemClient) Write(payload interface{}) (int, error) { // 저장하는 컴포넌트 => 파일 시스템에 저장하는 코드
 	if payload != nil {
 
-		index, docID, data := payload.(payloads.Payload).Out()
+		index, docID, data := payload.(payloads.Payload).Out() // Out를 실제 사용하는 곳
+		// out을 통해서 원하는 데이터를 반환하고 저장하는 로직을 탄다.
 
 		f.mu.Lock()
 		// Write 메소드가 리턴 할 때 Unlock
