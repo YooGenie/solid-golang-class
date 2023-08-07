@@ -37,7 +37,7 @@ func TestNoopProcessor_Process(t *testing.T) {
 	// 실제로 테스트 코드를 실행하는 부분
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			// 프로세서 생성
+			// 프로세서 생성 =>
 			np, err := processors.CreateProcessor(tC.processorName, nil)
 			if err != nil {
 				t.Error(err)
@@ -50,11 +50,14 @@ func TestNoopProcessor_Process(t *testing.T) {
 
 			// Stage 개수는 1개로 고정
 			// 채널 개수는 Stage 개수 +1
-			stageCh := make([]chan payloads.Payload, 1+1)
+			stageCh := make([]chan payloads.Payload, 1+1) // 여러개의 채널을 생성한다. => 이유는? 프로세서가 1개가 아니라 여러개니까 여러개의 스테이지가 있을 수 있다.
+
 			// 에러채널 개수는 Stage 개수 +2
 			errCh := make(chan error, 1+2)
 			for i := 0; i < len(stageCh); i++ {
-				stageCh[i] = make(chan payloads.Payload)
+				stageCh[i] = make(chan payloads.Payload) // 데이터를 주고 받을 때 채널을 사용한다. => 동시성이 발생했을 때 고에서는 고루틴을 사용해서 별도의 작업을 동시적으로 할 수 있는데
+				// 그런 경우 데이터를 어떻게 주고 받을까 고에서 사용하는 기법중에 하나가 채널을 통해서 데이터를 주고 받는다. Payload의 타입 채널을 가지고 데이터를 주고 받는다.
+				//
 			}
 
 			// FiFO Stage Runner 에게 넘길 파라미터 생성
@@ -64,23 +67,25 @@ func TestNoopProcessor_Process(t *testing.T) {
 				outCh: []chan<- payloads.Payload{stageCh[1]},
 				errCh: errCh,
 			}
+			// 여기까지 프로세서는 생성하고 프로세서의 임의의 파라미터를 테스트 케이스로 부터 받아와서 전송하는 작업
+
 			// StageRunner 구현체 FIFO 실행
 			// Goroutine 으로 실행
 			go fifo.Run(ctx, wp)
 
 			stageCh[0] <- tC.payload
 
-			for {
+			for { // 다중 채널로부터 데이터를 받을 때 사용하는 문법 => 순서와 상관없이 채널로부터 데이터가 들오는걸 실행한다. 데이터가 들어오면
 				select {
-				case err := <-errCh:
-					if tC.testcase == "invalid" {
+				case err := <-errCh: // 에러가 발생했을 때 처리하는 부분
+					if tC.testcase == "invalid" { // invalid 케이스이 그냥 로그를 찍는다.
 						t.Log(err.Error())
 					} else {
-						t.Errorf(err.Error())
+						t.Errorf(err.Error()) // invalid 아닌 경우 에러 찍기
 					}
 					cancelFunc()
 					return
-				case data := <-stageCh[1]:
+				case data := <-stageCh[1]: //
 					t.Log(data)
 					cancelFunc()
 					return
