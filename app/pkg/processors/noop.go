@@ -49,17 +49,29 @@ func NewNoopProcessor(config jsonObj) Processor {
 func (n *NoopProcessor) Process(ctx context.Context, p payloads.Payload) (payloads.Payload, error) {
 	logger.Debugf("Processing %v", p) // 디버그로 이 데이터를 Processing하고 있다.
 	// 확장된 Validate 메소드 사용
-	err := n.Validate(ctx, p) // 로그 찍고 Validate에 Validate 로직을 탄다.
+	// 로그 찍고 Validate에 Validate 로직을 탄다.
+	err := n.Validate(ctx, p) // NoopProcessor에서는 별도로 Validate 구현하지 않았다. Validate를 쓸 수 있는 이유는? NoopProcessor 스트럭안에 Validator 스트럭 임베딩했다. 딱히 하는 건 없고 Validate 메소드만 있다.
 	if err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
+// Process라는 상위 모듈에 메소드 시그니처를 구현 => 덕 타이핑이다.
+// 인터페이스 구현할 때 자바와 다르게 명시적으로 구현하지 않고 목시적으로 구현한다 이걸 덕 타이핑이라고 한다.
+// func (n *NoopProcessor) Process(ctx context.Context, p payloads.Payload) (payloads.Payload, error){} 에서 상위 모듈인 Processor에서 정의한 인터페이스 구현 하고 있다.
+// 실제 반환은 return &NoopProcessor{*validator} 이지만 메소드를 보니까 Processor 인터페이스를 만족시킨다. 그러면서 덕 타이핑이 된다.
 // 별도의 로직 없 껍데기만 있는 걸 실행할 예정
 func (n *NoopProcessor) Validate(ctx context.Context, p payloads.Payload) error { // NoopProcessor에서 Validate를 따로 정의 함
 	// 기존의 Validtor라는 메소드를 그냥 사용하여 기존 삽입하고 있는 Validate 유효성 검증 로직을 그대로 사용한다.
 	// 별도에 NoopProcessor에 Validate 로직을 구현 함으로 기존 코드 확장 했다.
-	n.Validator.Validate(ctx, p)
+
+	// custom 벨리데이터를 구성할 수 있다. custom validation
+	// 로직을 한 곳에 다 쓰는게 아니라 별도로 구현해서 임베딩 시켜서 가져와서 쓸 수 있는 방식이다.
+	n.Validator.Validate(ctx, p) // 기존에 있는 벨리테이터를 사용하고 커스텀 벨리데이터를 여기에 더 작성하면 된다.
 	return nil
 }
+
+// 만약에 NoopProcessor에서 noop은 아무것도 안하지만 그래도 해야겠다. 그러면
+// func (n *NoopProcessor) Validate(ctx context.Context, p payloads.Payload) error { } 이렇게 작성하면 Process 함수안에 Validate를 사용한다.
+// 만약 없으면 validator.go안에 있는 func (Validator) Validate(ctx context.Context, p payloads.Payload) error {} 이걸 사용한다.

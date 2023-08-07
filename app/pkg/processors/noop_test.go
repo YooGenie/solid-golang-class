@@ -11,12 +11,13 @@ import (
 )
 
 func TestNoopProcessor_Process(t *testing.T) {
+	// 테스트 케이스를 선언해 진행한다. 보통 스트럭트로 만들어서 하지만 언나니머스 스트럭을 사용한다. => 어나니머스를 선언하고 동시에 초기화를 시킨다. 슬라이스에 형테이다. 순회를 하면서 구조체에 있는 값을 읽기때문에
 	testCases := []struct {
 		desc          string
 		processorName string
 		payload       payloads.Payload
 		testcase      string
-	}{
+	}{ // 여기 초기화값
 		{
 			desc:          "valid payload",
 			processorName: "noop",
@@ -30,9 +31,10 @@ func TestNoopProcessor_Process(t *testing.T) {
 			testcase:      "invalid",
 		},
 	}
-	os.Args = nil
-	os.Setenv("EDP_ENABLE_DEBUG_LOGGING", "true")
+	os.Args = nil                                 // vs에서 테스트할 때 불필요한 인자값이 넘어 때 인지할 수 없다.
+	os.Setenv("EDP_ENABLE_DEBUG_LOGGING", "true") // 디버깅해보기 위해서 환경변수 설정
 	logger.Setup()
+	// 실제로 테스트 코드를 실행하는 부분
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			// 프로세서 생성

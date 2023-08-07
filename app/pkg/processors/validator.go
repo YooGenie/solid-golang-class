@@ -19,10 +19,12 @@ func NewValidator() *Validator {
 }
 
 func (Validator) Validate(ctx context.Context, p payloads.Payload) error {
-	if p == nil {
+	if p == nil { // 페이로드를 받아서 닐이냐 아니 라는 로직을 가지고 있다.
 		return errors.New("payload is nil")
 	}
 	// 데이터 유효성 체크
 	// 유효성 통과하지 못하는 경우 에러 반환
 	return nil
 }
+
+// Validate 로직을 쓰고 싶을 때 굳이 별도에 프로세스에 처음부터 Validate 로직을 짜는게 아니라 기존 코드를 재사용할 수 있는지 살펴보자.

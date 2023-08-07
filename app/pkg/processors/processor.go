@@ -11,25 +11,26 @@ import (
 
 type jsonObj = map[string]interface{}
 
-type ProcessorFactory func(config jsonObj) Processor
+type ProcessorFactory func(config jsonObj) Processor // ProcessorFactory jsonObj 형식 설정 파일을 받고 Processor 인터페이스 리턴을 받는다.
 
-var processorFactories = make(map[string]ProcessorFactory)
+var processorFactories = make(map[string]ProcessorFactory) // 맵으로 초기화를 해놨다. key는 string 타입이고 값은 ProcessorFactory 타입
 
 // Each processor implementation must Register itself
-func Register(name string, factory ProcessorFactory) {
+func Register(name string, factory ProcessorFactory) { // 이름이랑 ProcessorFactory 타입으로 입력을 받는다
 	logger.Debugf("Registering processor factory for %s", name)
 	if factory == nil {
 		logger.Panicf("Processor factory %s does not exist.", name)
 	}
-	_, registered := processorFactories[name]
+	_, registered := processorFactories[name] // 닐이 아니면 ProcessorFactory에 이름이 있는 없는지 확인을 하고
+	// processorFactories 타입은 맵이다.
 	if registered {
 		logger.Errorf("Processor factory %s already registered. Ignoring.", name)
 	}
-	processorFactories[name] = factory
+	processorFactories[name] = factory // 여기에 넣어 준다.
 }
 
 // CreateProcessor is a factory method that will create the named processor
-func CreateProcessor(name string, config jsonObj) (Processor, error) {
+func CreateProcessor(name string, config jsonObj) (Processor, error) { // CreateProcessor 언제 사용 되는지? event_data/pipeline.go에서 사용
 
 	factory, ok := processorFactories[name]
 	if !ok {
