@@ -43,7 +43,7 @@ func TestNoopProcessor_Process(t *testing.T) {
 				t.Error(err)
 			}
 			// 스테이지 러너 생성 1개
-			fifo := pipelines.FIFO(np)
+			fifo := pipelines.FIFO(np) // FIFO라는  스테이지 러너에 넣어 준다. FIFO 런을 할 때 FIFO 객체를 생성한다.
 
 			// 파라미터 생성
 			ctx, cancelFunc := context.WithCancel(context.Background())
@@ -51,6 +51,7 @@ func TestNoopProcessor_Process(t *testing.T) {
 			// Stage 개수는 1개로 고정
 			// 채널 개수는 Stage 개수 +1
 			stageCh := make([]chan payloads.Payload, 1+1) // 여러개의 채널을 생성한다. => 이유는? 프로세서가 1개가 아니라 여러개니까 여러개의 스테이지가 있을 수 있다.
+			//1+1를 생성해주는데 stage에 개수는 하나잖아요. 채널은 2개이다. 만약에 채널이 하나면 컨슈머에서 프로세서에서 가는건 아무 문제가 없다. 그런데 나중에 스토리지 프로바이저로 데이터를 전송해줄  채널이 1개 더 필요하다.
 
 			// 에러채널 개수는 Stage 개수 +2
 			errCh := make(chan error, 1+2)
@@ -61,17 +62,20 @@ func TestNoopProcessor_Process(t *testing.T) {
 			}
 
 			// FiFO Stage Runner 에게 넘길 파라미터 생성
-			wp := &workerParams{
+			wp := &workerParams{ // workerParams라는 것을 통해서 이것도 인터페이스 구현체이다.
 				stage: 0,
-				inCh:  stageCh[0],
+				inCh:  stageCh[0], // 파라미터를 구성할 때 그 다음 채널을 넣어 줘야한다.
 				outCh: []chan<- payloads.Payload{stageCh[1]},
 				errCh: errCh,
 			}
+			// workerParams 초기화를 할 때 몇번 째 스테이지인지 사용할 채널이 무엇인지 작성해서 파라미터를 생성한다.
 			// 여기까지 프로세서는 생성하고 프로세서의 임의의 파라미터를 테스트 케이스로 부터 받아와서 전송하는 작업
 
 			// StageRunner 구현체 FIFO 실행
 			// Goroutine 으로 실행
 			go fifo.Run(ctx, wp)
+			// fifo는 Run이라는 메소드 시그니처를 가지고 있는 StageRunner 구현체 중에 하나이다.
+			// 여기서 런을 한다.
 
 			stageCh[0] <- tC.payload
 
@@ -124,8 +128,8 @@ type workerParams struct {
 	stage int
 
 	// Channels for the worker's input, output and errors.
-	inCh  <-chan payloads.Payload
-	outCh []chan<- payloads.Payload
+	inCh  <-chan payloads.Payload   // 컨슈머에서 채널은 in ( <-chan : 데이터를 쓰는 용도)
+	outCh []chan<- payloads.Payload // 채널에서 프로세서는 out ( []chan<- : 데이터를 받는 용도)
 	errCh chan<- error
 }
 
