@@ -16,7 +16,7 @@ func init() {
 
 type RabbitMQDefaultProcessor struct {
 	Validator
-	RabbitMQMetaInjector
+	RabbitMQMetaInjector // 카프카와 똑같은 방식 => 메타 데이터를 넣어 줄 수 있다.
 }
 
 func NewRabbitMQDefaultProcessor(config jsonObj) Processor {

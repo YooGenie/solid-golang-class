@@ -34,7 +34,6 @@ func (r fifo) Run(ctx context.Context, params StageParams) {
 				return
 			}
 			if payloadIn == nil { // payloadIn가 닐이면 리턴을 한다
-
 				return
 			}
 			// 이 로직을 통과하면 payloadIn에서 복사를 한다. => 디 카피를 해서 하나의 복사본을 만든다.

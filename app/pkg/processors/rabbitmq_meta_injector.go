@@ -28,6 +28,7 @@ func (*RabbitMQMetaInjector) Process(ctx context.Context, p payloads.Payload) (p
 	meta["data-processor-timestamp"] = time.Now()
 	meta["data-processor-env"] = "local"
 
+	// 이 안에서 데이터를 처리한다.
 	rbbtPayload.Value["meta"] = meta
 
 	return rbbtPayload, nil

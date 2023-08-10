@@ -21,13 +21,13 @@ func TestNoopProcessor_Process(t *testing.T) {
 		{
 			desc:          "valid payload",
 			processorName: "noop",
-			payload:       &ConcretePayload{id: 1},
+			payload:       &ConcretePayload{id: 1}, // 하나의 페이로드를 전달하고 있다.
 			testcase:      "valid",
 		},
 		{
 			desc:          "invalid payload",
 			processorName: "noop",
-			payload:       nil,
+			payload:       nil, // 닐인데 그 안에서 리턴을 했기 때문에 벨리데이터 프로세서를 따라간거다.
 			testcase:      "invalid",
 		},
 	}
@@ -46,7 +46,8 @@ func TestNoopProcessor_Process(t *testing.T) {
 			fifo := pipelines.FIFO(np) // FIFO라는  스테이지 러너에 넣어 준다. FIFO 런을 할 때 FIFO 객체를 생성한다.
 
 			// 파라미터 생성
-			ctx, cancelFunc := context.WithCancel(context.Background())
+			ctx, cancelFunc := context.WithCancel(context.Background()) //컨텍스트를 넘기고 있다. 컨텍스트를 취소하게 되면 컨텍스트 결과값을 보고 프로그램을 종료한다.
+			// 상태가 채널이 종료가 되었다. 컨텍스트가 종료가 되었다. 그걸 리스닝하고 있다가 프로그램을 종료하는 그런 용도이다.
 
 			// Stage 개수는 1개로 고정
 			// 채널 개수는 Stage 개수 +1
@@ -77,7 +78,9 @@ func TestNoopProcessor_Process(t *testing.T) {
 			// fifo는 Run이라는 메소드 시그니처를 가지고 있는 StageRunner 구현체 중에 하나이다.
 			// 여기서 런을 한다.
 
-			stageCh[0] <- tC.payload
+			stageCh[0] <- tC.payload // 0번째 채널에 페이로드를 넣어놨다.=> 테스트코드에서 페이로드를 가지고 온다.
+			// 페이로드를 ConcretePayload 타입으로 넘겨준다.
+			// 0번째 채널이 어디냐? 프로세서 입장에서 데이터를 받는 채널이다. => 컨슈머의 역할을 대신 해준다.
 
 			for { // 다중 채널로부터 데이터를 받을 때 사용하는 문법 => 순서와 상관없이 채널로부터 데이터가 들오는걸 실행한다. 데이터가 들어오면
 				select {
@@ -89,9 +92,9 @@ func TestNoopProcessor_Process(t *testing.T) {
 					}
 					cancelFunc()
 					return
-				case data := <-stageCh[1]: //
-					t.Log(data)
-					cancelFunc()
+				case data := <-stageCh[1]: // 그 다음 채널한테 아웃풋을 해준다. 아웃풋을 해주는 채널이 1번이다.
+					t.Log(data)  // 데이터를 출력하고 끝낸다.
+					cancelFunc() // 컨텍스트가 취소 되면 fifo 라고 하는 객체에 런이라고 하는 메소드가 컨텍스트가 취소되면 리턴을 해서 종료가 되도록 하는 구조이다.
 					return
 				}
 			}
@@ -101,7 +104,7 @@ func TestNoopProcessor_Process(t *testing.T) {
 
 var _ payloads.Payload = new(ConcretePayload)
 
-type ConcretePayload struct {
+type ConcretePayload struct { //페이로드 인터페이스 타입을 만족시키는 구현체를 Clone(), MarkAsProcessed(), Out() 여기에 만들었다. => 테스트를 위해 일종에 스텁을 만든 것이다.
 	id int
 }
 
