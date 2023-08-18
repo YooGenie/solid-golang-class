@@ -17,7 +17,7 @@ type KafkaDefaultProcessor struct {
 }
 
 func init() {
-	Register("kafka_default", NewKafkaDefaultProcessor)
+	Register("kafka_default", NewKafkaDefaultProcessor) // kafka_default 프로세서를 사용하겠다. 런타임시 생성해서 사용하겠다.
 }
 
 func NewKafkaDefaultProcessor(config jsonObj) Processor {

@@ -61,6 +61,12 @@ type Processor interface {
 type ProcessorFunc func(context.Context, payloads.Payload) (payloads.Payload, error)
 
 // ProcessorFunc 를 Processor 인터페이스를 구현하도록 도와주는 Process 메소드
-func (f ProcessorFunc) Process(ctx context.Context, p payloads.Payload) (payloads.Payload, error) {
+func (f ProcessorFunc) Process(ctx context.Context, p payloads.Payload) (payloads.Payload, error) { // 자기 자신을 호출해서 f(ctx, p) 파라미터를 넘겨주고 실행해준다. Process는 Process 인터페이스를 만족시키는 타입이다. 그래서 덕타이핑이 가능하다.
 	return f(ctx, p)
 }
+
+// ProcessorFunc 타입인 경우에는 Process를 실행하기 때문에 Processor 인터페이스를 만족시키는 서브 타입이 될 수 있다.
+
+// 여기 디자인 패턴 중 하나인데.
+// 일반 함수를 인터페이스를 만족시키는 타입으로 쓰고 싶다. 어댑터라고 생각하자
+// 어댑터가 연결을 시켜주는 것이다. ProcessorFunc라는 어대텁는 뭘하냐? Process 메소때문에 덕타이핑이 가능하다.
