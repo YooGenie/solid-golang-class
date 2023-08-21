@@ -17,16 +17,16 @@ type (
 )
 
 // Run is the entrypoint for running pipeline
-func Run(cfg config.Config, http *server.HttpServer) {
+func Run(cfg config.Config, http *server.HttpServer) { //서비스를 직접 구동하는 메소드
 
 	// Run Http Server
-	http.Serve()
+	http.Serve() // 서버 띄우고
 
 	// Force garbage collection
 	go GarbageCollector()
 
 	// EventDataPipeline 타입의 인스턴스를 생성합니다.
-	edp, err := event_data.NewEventDataPipeline(cfg)
+	edp, err := event_data.NewEventDataPipeline(cfg) // EventDataPipeline 실제 생성하는 부분이 여기 있 런을 하기 전에 생성하는 과정이다.
 
 	// 파이프라인 인스턴스 생성에 실패할 경우
 	// 프로그램 동작을 멈춥니다.

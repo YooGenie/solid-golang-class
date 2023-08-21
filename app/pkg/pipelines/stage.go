@@ -6,10 +6,11 @@ import (
 )
 
 type StageRunner interface {
-	Run(context.Context, StageParams)
+	Run(context.Context, StageParams) //프로세서를 실제 실행할 때 사용되는 감싸고 있는 모듈이다.
 }
 
-type StageParams interface {
+// 테스트용에서 사요
+type StageParams interface { // pipelines 패키지 아래 있는 인터페이스/ workerParams 구현체의 상위 모듈이다. 데이터를 주고 받는 걸로 선언했다.
 	// StageIndex returns the position of this stage in the pipeline.
 	StageIndex() int
 

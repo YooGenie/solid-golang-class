@@ -8,16 +8,19 @@ import (
 	"strconv"
 )
 
-var _ Processor = new(ProcessorFunc)
+var _ Processor = new(ProcessorFunc) // Processor 인터페이스 타입을 만족시키는 것이다.
 var _ ProcessorFunc = NormalizeKafkaPayload
 
 func init() {
-	Register("kafka_normalizer", NewKafkaNormalizer)
+	Register("kafka_normalizer", NewKafkaNormalizer) // 저장소 있다면 저장소에 맞게 스키마를 일관성 있게 변경할 필요가 있다.
+	// config에 kafka_normalizer 이게 있다.
 }
 
 func NewKafkaNormalizer(config jsonObj) Processor {
 
-	return ProcessorFunc(NormalizeKafkaPayload)
+	return ProcessorFunc(NormalizeKafkaPayload) //스트럭이 아니고 함수이다. 그냥 함수인데 프로세서 타입으로 반환하고 있다. 가능한 이유는? 덕타이핑의 장점때문이다. ProcessorFunc 감싸서 ProcessorFunc타입으 변환했다.
+	// 일반함수를 변환을 시켜서 리턴을 하며 Processor 인터페이스로 전환 된다.
+	// 장점은? 스트럭으로 선언할 필요가 없어서 함수로 선언하면 된다. 일반함수로 개발을 하고 프로세서로 형변환을 해서 등록하면 런타임시 마다 사용할 수 있다.
 }
 
 func NormalizeKafkaPayload(ctx context.Context, p payloads.Payload) (payloads.Payload, error) { // 카푸카 메시지가 전달 되었을  특정 양식으 인덱스와 docID, 그 안에 들어갈 데이를 정규화한다.

@@ -13,6 +13,8 @@ type fixedWorkerPool struct {
 // FixedWorkerPool returns a StageRunner that spins up a pool containing
 // numWorkers to process incoming payloads in parallel and emit their outputs
 // to the next stage.
+// FixedWorkerPool 여러개의 고루틴이 있어서 워커가 대비를 하고 있다가 잡이 들어오면 분산으로 처리한다.
+
 func FixedWorkerPool(proc processors.Processor, numWorkers int) StageRunner {
 	if numWorkers <= 0 {
 		panic("FixedWorkerPool: numWorkers must be > 0")
