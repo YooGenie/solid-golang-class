@@ -42,7 +42,7 @@ type FilesystemClient struct {
 	rateLimiter *rate.Limiter
 }
 
-func NewFilesystemClient(config jsonObj) StorageProvider {
+func NewFilesystemClient(config jsonObj) StorageProvider { // NewFilesystemClient가 StorageProvider 팩토리로 등록할 때 사용하는 함수이다.
 	var fsc FsCfg
 	// 바이트로 변환
 	cfgByte, _ := json.Marshal(config)
@@ -61,7 +61,11 @@ func NewFilesystemClient(config jsonObj) StorageProvider {
 		numWorkers = fsc.Worker
 	}
 
-	fc.workers = concur.NewWorkerPool("filesystem-workers", fc.inCh, numWorkers, fc.Write)
+	// 일련에 초기화 작업이 있다.
+
+	fc.workers = concur.NewWorkerPool("filesystem-workers", fc.inCh, numWorkers, fc.Write) //WorkerPool를 생성해준다.
+	// inCh는 input 채널를 통해서 데이터를 전송할 때 drain 할때 FilesystemClient안에서 내부 전송 시스템이 된다
+	// fc.Write 메소드가 실제로는 Write 관련된 비즈니스를 구현하는 로직이다. Write를 통해서 덕타이핑이 만족한다.
 	fc.workers.Start()
 
 	return fc
@@ -115,6 +119,6 @@ func (f *FilesystemClient) Write(payload interface{}) (int, error) { // 저장�
 
 // Drain implements pipelines.Sink
 func (f *FilesystemClient) Drain(ctx context.Context, p payloads.Payload) error {
-	f.inCh <- p
+	f.inCh <- p // input 채널이 하는 역할은 Drain을 하는 역할이다. 처리가 완료 된 데이터를 받아서 내부로 있는 채널로 전송하는 역할을 한다.
 	return nil
 }

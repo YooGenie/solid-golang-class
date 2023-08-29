@@ -135,21 +135,22 @@ out:
 // sinkWorker implements a worker that reads Payload instances from an input
 // channel (the output of the last pipeline stage) and passes them to the
 // provided sink.
-func sinkWorker(ctx context.Context, sink Sink, inCh <-chan payloads.Payload, errCh chan<- error) {
-	for {
+func sinkWorker(ctx context.Context, sink Sink, inCh <-chan payloads.Payload, errCh chan<- error) { //sink 타입으로 인스턴스 받고 데이터를 받아올 채널, 에러를 받을 에러 채널도 받고
+	for { // 채널에서 데이터를 받아올 때 사용하는 문법은 for-select문을 통해서 여러 채널의 리스닝을 한다
 		select {
-		case payload, ok := <-inCh:
+		case payload, ok := <-inCh: // 데이터를 받고자 하는 input 채널로부터 데이트를 받아서
 			if !ok {
 				return
 			}
-			clone := payload.Clone()
-			if err := sink.Drain(ctx, clone); err != nil {
+			clone := payload.Clone()                       // 디카피를 하고
+			if err := sink.Drain(ctx, clone); err != nil { // sink.Drain 메소드를 통해서 복제된 페이로드를 전달해준다.
+				// Drain 싱크대에 물을 모인다는 의미. 데이터가 싱크대에 모여있다. 배수를 한다. 스토리지프로바이저로 데이터를 전송해준다. 배수하는 작업과 비슷하다.
 				wrappedErr := xerrors.Errorf("pipeline sink: %w", err)
 				maybeEmitError(wrappedErr, errCh)
 				return
 			}
 			payload.MarkAsProcessed()
-		case <-ctx.Done():
+		case <-ctx.Done(): //컨텍스트에서 받는 이벤트 채널일 수도 있다.
 			logger.Infof("Shutting down sink worker...")
 			return
 		}
