@@ -121,12 +121,14 @@ func (e *ElasticSearchClient) Write(payload interface{}) (int, error) {
 	e.buf.Write(data)
 
 	// 1000개 일때 벌크 쓰기
-	if e.count >= 1000 {
+	if e.count >= 1000 { // 카운트가 1000개일 때 벌크를 해달라
 		// 로컬 데이터 카피
 		buf := e.buf.Bytes()
 		// 벌크라이트
 		logger.Debugf("trigger bulk write : %d", e.count)
 		written, err := e.bulkWrite(index, buf)
+		//too many request error가 발생할 수 있다.
+		// 엘레스틱서치가 어떤 스팩, 메모리 자원으로 구성되어있어서 그거에 따라 다를 수 있지만 보통은 단일건이 아니라 벌크 라이크로 구현을안한다.
 		if err != nil {
 			return 0, nil
 		}

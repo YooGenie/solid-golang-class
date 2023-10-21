@@ -51,12 +51,14 @@ func NewFilesystemClient(config jsonObj) StorageProvider { // NewFilesystemClien
 	// 설정파일 Struct 으로 Load
 	json.Unmarshal(cfgByte, &fsc) //바이트를 Struct로 전환
 
-	fc := &FilesystemClient{
+	fc := &FilesystemClient{ // 원하는 값을 뽑아서 초기화를 한다.
 		RootDir:     fsc.Path,
 		inCh:        make(chan interface{}, fsc.Buffer),
 		count:       0,
 		rateLimiter: ratelimit.NewRateLimiter(ratelimit.RateLimit{Limit: 10, Burst: 0}),
-	} // 원하는 값을 뽑아서 초기화를 한다.
+		// 클라이언트를 초기화할 때 ratelimit.RateLimit 호출을 클라이언트에서 할 때 클라이언트이든 서버든 호출 개수를 제한 해둘 필요가 있다.
+		//부하를 견디지 못할 수 있어서.. 호츨을 하는 곳이나 호출을 받는 곳이나 이런 메커니즘이 필요하다. 데이터를 사용하는 입장에서도 제한이 필요하다.
+	}
 
 	// 워커의 개수도 지정해준다.
 	numWorkers := 1
@@ -93,7 +95,7 @@ func (f *FilesystemClient) Write(payload interface{}) (int, error) { // 저장�
 
 		for {
 			startWait := time.Now()
-			f.rateLimiter.Wait(ctx)
+			f.rateLimiter.Wait(ctx) // 쓰기 메소드에서 사용한다. Wait으로 사용한다. 생성된 컨텍스를 보고 컨텍스트에서 카운트를 보는다. 허용한 범위보다 많으면 기다린다.
 			logger.Debugf("rate limited for %f seconds", time.Since(startWait).Seconds())
 
 			limit := 1
